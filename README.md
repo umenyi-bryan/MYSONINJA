@@ -1,4 +1,4 @@
-# 🗡️ MYSŌNINJA ULTIMATE
+# 🗡️ MYSŌNINJA ULTIMATE💀😈
 
 <div align="center">
 
@@ -22,6 +22,34 @@
 - **🎣 AI Phishing Generator** - Multi-platform campaigns
 - **🔮 Quantum AI** - Strategic planning and evolution
 
+🔑 Ngrok Token Input:
+
+· Sidebar section for token management
+· Secure storage in localStorage
+· Automatic configuration when saved
+· Token validation and error handling
+
+🔗 Phishing Link Display:
+
+· Beautiful campaign cards with platform badges
+· Live public URLs that are clickable
+· Real-time statistics (visitors, credentials)
+· Automatic updates when ngrok tunnel starts
+
+🌐 Complete Workflow:
+
+1. Enter ngrok token in sidebar
+2. Generate phishing campaign
+3. See live public URL immediately
+4. Share the link with targets
+5. Monitor results in real-time
+
+Test it now:
+
+```bash
+python src/mysoninja_web_controlled.py
+# Access: http://127.0.0.1:5000
+```
 ## 🚀 Quick Start
 
 ```bash
