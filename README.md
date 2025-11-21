@@ -1,6 +1,32 @@
 
 # 🗡️ MYSŌNINJA ULTIMATE💀😈
+<p align="center">
+  
+```
 
+
+
+███╗   ███╗██╗   ██╗███████╗ ██████╗ ███╗   ██╗██╗███╗   ██╗ █████╗ ██╗   ██╗
+
+████╗ ████║╚██╗ ██╔╝██╔════╝██╔═══██╗████╗  ██║██║████╗  ██║██╔══██╗╚██╗ ██╔╝
+
+██╔████╔██║ ╚████╔╝ ███████╗██║   ██║██╔██╗ ██║██║██╔██╗ ██║███████║ ╚████╔╝
+
+██║╚██╔╝██║  ╚██╔╝  ╚════██║██║   ██║██║╚██╗██║██║██║╚██╗██║██╔══██║  ╚██╔╝
+
+██║ ╚═╝ ██║   ██║   ███████║╚██████╔╝██║ ╚████║██║██║ ╚████║██║  ██║   ██║
+
+╚═╝     ╚═╝   ╚═╝   ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝   ╚═╝
+
+
+
+🗡️ QUANTUM RED TEAM WARFARE PLATFORM • DEMON SLAYER EDITION 🗡️
+
+FORGED BY MYSTERYAK & KNIGHTDALE • WHERE DEMONS FEAR TO TREAD 🥶
+
+
+
+```
 <div align="center">
 <div align="center">
 
@@ -23,10 +49,6 @@
 **🔥 THE ULTIMATE RED TEAM WARFARE PLATFORM 🔥**
 
 </div>
-![Version](https://img.shields.io/badge/version-1.0.0-red)
-![Python](https://img.shields.io/badge/python-3.8%2B-blue)
-![Termux](https://img.shields.io/badge/termux-supported-green)
-![License](https://img.shields.io/badge/license-MIT-orange)
 
 **Quantum Red Team Platform | AI-Powered Cyber Warfare Suite**
 
