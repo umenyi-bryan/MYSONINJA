@@ -1,7 +1,28 @@
+
 # 🗡️ MYSŌNINJA ULTIMATE💀😈
 
 <div align="center">
+<div align="center">
 
+# <img src="https://img.icons8.com/fluency/48/000000/ninja.png" width="30"> 冥忍 MYSŌNINJA <img src="https://img.icons8.com/fluency/48/000000/ninja.png" width="30">
+
+## `QUANTUM RED TEAM WARFARE PLATFORM` ⚡
+
+> *"Forged by MysteryAK & Knightdale • Where Demons Fear to Tread"* 🥶
+
+![Version](https://img.shields.io/badge/DEMON_SLAYER-EDITION-ff0033?style=for-the-badge&logo=ghost&logoColor=white)
+![Python](https://img.shields.io/badge/PYTHON-3.8+-00ffff?style=for-the-badge&logo=python&logoColor=white)
+![Platform](https://img.shields.io/badge/PLATFORM-LINUX|WINDOWS|MACOS-8a2be2?style=for-the-badge)
+
+<p align="center">
+  <img alt="Stars" src="https://img.shields.io/github/stars/mysteryak/mysoninja?style=for-the-badge&color=ff0033&label=DEMON%20SLAYERS">
+  <img alt="Forks" src="https://img.shields.io/github/forks/mysoninja?style=for-the-badge&color=00ff88&label=SHADOW%20CLONES">  
+  <img alt="License" src="https://img.shields.io/badge/LICENSE-MIT-ffcc00?style=for-the-badge">
+</p>
+
+**🔥 THE ULTIMATE RED TEAM WARFARE PLATFORM 🔥**
+
+</div>
 ![Version](https://img.shields.io/badge/version-1.0.0-red)
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue)
 ![Termux](https://img.shields.io/badge/termux-supported-green)
